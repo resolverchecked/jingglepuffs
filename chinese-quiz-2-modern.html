@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>汉语词汇 · Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Syne:wght@400;600;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#050608;
+  --bg2:#0a0d12;
+  --surface:#0d1117;
+  --surface2:#111722;
+  --surface3:#161d2a;
+  --border:#1d2633;
+  --border2:#2b3748;
+  --text:#eef3fa;
+  --text2:#8c9aab;
+  --text3:#526175;
+  --accent:#38bdf8;
+  --accent2:#0ea5e9;
+  --green:#22c55e;
+  --red:#f43f5e;
+  --gold:#fbbf24;
+  --r:18px;
+}
+
+html{scroll-behavior:smooth}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at top left, rgba(56,189,248,0.08), transparent 28%),
+    radial-gradient(circle at top right, rgba(251,191,36,0.05), transparent 24%),
+    linear-gradient(180deg, #040507 0%, #090b10 100%);
+  color:var(--text);
+  font-family:'Syne',sans-serif;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);
+  background-size:56px 56px;
+  pointer-events:none;
+  opacity:.55;
+}
+body::after{
+  content:'';
+  position:fixed;
+  inset:-20% -10% auto -10%;
+  height:40vh;
+  background:radial-gradient(circle, rgba(56,189,248,0.12) 0%, transparent 65%);
+  pointer-events:none;
+}
+
+header{
+  position:relative;
+  z-index:5;
+  padding:28px 18px 18px;
+  text-align:center;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(10px);
+}
+.logo{
+  font-size:clamp(1.5rem,4vw,2.1rem);
+  font-weight:800;
+  letter-spacing:-0.02em;
+}
+.logo span{
+  color:var(--accent);
+  font-family:'Noto Serif SC',serif;
+}
+.subtitle{
+  margin-top:6px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.68rem;
+  letter-spacing:.18em;
+  color:var(--text3);
+  text-transform:uppercase;
+}
+.word-count-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  margin-top:12px;
+  padding:6px 14px;
+  border-radius:999px;
+  border:1px solid rgba(56,189,248,0.18);
+  background:rgba(56,189,248,0.06);
+  color:var(--accent);
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;
+  letter-spacing:.1em;
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px rgba(56,189,248,.7)}
+
+.wrap{
+  position:relative;z-index:2;
+  max-width:860px;
+  margin:0 auto;
+  padding:20px 16px 72px;
+}
+
+.top-grid{
+  display:grid;
+  grid-template-columns:1.3fr .9fr;
+  gap:14px;
+  margin-bottom:14px;
+}
+.panel, .q-card{
+  background:linear-gradient(180deg, rgba(17,23,34,.95), rgba(12,15,22,.95));
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:var(--r);
+  box-shadow:0 18px 45px rgba(0,0,0,.28);
+  backdrop-filter: blur(12px);
+}
+
+.panel{
+  padding:18px;
+}
+.panel-title{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.62rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--text3);
+  margin-bottom:12px;
+}
+.segmented{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.seg-btn{
+  border:1px solid var(--border2);
+  background:var(--surface2);
+  color:var(--text2);
+  border-radius:999px;
+  padding:10px 14px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.72rem;
+  letter-spacing:.04em;
+  cursor:pointer;
+  transition:.15s ease;
+}
+.seg-btn:hover{transform:translateY(-1px);border-color:var(--accent);color:var(--text)}
+.seg-btn.active{
+  background:linear-gradient(135deg, rgba(14,165,233,.22), rgba(56,189,248,.14));
+  border-color:rgba(56,189,248,.42);
+  color:var(--accent);
+  box-shadow:0 0 0 1px rgba(56,189,248,.12) inset;
+}
+
+.controls{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  margin-top:14px;
+}
+.ban-wrap{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.ban-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.62rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--text3);
+}
+textarea{
+  width:100%;
+  min-height:94px;
+  resize:vertical;
+  border-radius:14px;
+  border:1px solid var(--border2);
+  background:#070b10;
+  color:var(--text);
+  padding:12px 13px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.8rem;
+  line-height:1.55;
+  outline:none;
+}
+textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.1)}
+.ban-help{
+  font-size:.72rem;
+  line-height:1.5;
+  color:var(--text3);
+  font-family:'JetBrains Mono',monospace;
+}
+.ctrl-col{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  justify-content:flex-end;
+  align-items:stretch;
+}
+.ctrl-btn{
+  border:none;
+  border-radius:14px;
+  padding:12px 14px;
+  font-family:'Syne',sans-serif;
+  font-weight:800;
+  letter-spacing:.08em;
+  cursor:pointer;
+  transition:.15s ease;
+}
+.ctrl-btn.primary{
+  background:linear-gradient(135deg, var(--accent2), var(--accent));
+  color:#00111b;
+}
+.ctrl-btn.ghost{
+  background:transparent;
+  border:1px solid var(--border2);
+  color:var(--text2);
+}
+.ctrl-btn:hover{transform:translateY(-1px)}
+.meta-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+}
+.pill{
+  padding:7px 11px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  color:var(--text2);
+  font-family:'JetBrains Mono',monospace;
+  font-size:.64rem;
+  letter-spacing:.08em;
+}
+.pill strong{color:var(--accent);font-weight:700}
+
+.stats-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin:14px 0 10px;
+}
+.stat{
+  padding:14px 12px;
+  border-radius:16px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  text-align:center;
+}
+.stat-val{
+  font-size:1.35rem;
+  font-weight:800;
+  line-height:1;
+  margin-bottom:5px;
+}
+.stat-lbl{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.58rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--text3);
+}
+.stat.green .stat-val{color:var(--green)}
+.stat.red .stat-val{color:var(--red)}
+.stat.gold .stat-val{color:var(--gold)}
+
+.progress-row{
+  display:flex;justify-content:space-between;align-items:center;
+  margin:12px 0 10px;
+}
+.prog-label,.prog-score{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--text3);
+}
+.prog-score{color:var(--accent)}
+.progress-track{
+  height:4px;
+  background:rgba(255,255,255,0.06);
+  border-radius:999px;
+  overflow:hidden;
+  margin-bottom:16px;
+}
+.progress-fill{
+  height:100%;
+  width:0%;
+  border-radius:999px;
+  background:linear-gradient(90deg, var(--accent2), var(--accent));
+  transition:width .35s ease;
+}
+
+.q-card{
+  padding:28px 22px 22px;
+  position:relative;
+  overflow:hidden;
+}
+.q-card::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity:.75;
+}
+.q-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:16px;
+}
+.q-type-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 11px;
+  border-radius:999px;
+  border:1px solid rgba(56,189,248,.18);
+  background:rgba(56,189,248,.08);
+  color:var(--accent);
+  font-family:'JetBrains Mono',monospace;
+  font-size:.62rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.q-counter{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.62rem;
+  color:var(--text3);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.q-prompt-wrap{
+  min-height:120px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px 0 10px;
+}
+.q-prompt{
+  text-align:center;
+  line-height:1.12;
+}
+.q-prompt.type-hanzi{
+  font-family:'Noto Serif SC',serif;
+  font-size:clamp(2.8rem,9vw,4.5rem);
+  font-weight:700;
+  color:var(--text);
+}
+.q-prompt.type-id{
+  font-size:clamp(1.25rem,4.2vw,1.9rem);
+  font-weight:700;
+  color:var(--gold);
+}
+.q-hint{
+  text-align:center;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;
+  letter-spacing:.08em;
+  color:var(--text3);
+  margin-bottom:18px;
+}
+
+.options-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+.opt{
+  min-height:66px;
+  border-radius:16px;
+  border:1px solid var(--border2);
+  background:var(--surface2);
+  color:var(--text);
+  padding:13px 12px;
+  cursor:pointer;
+  transition:.15s ease;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  line-height:1.25;
+  position:relative;
+  overflow:hidden;
+}
+.opt:hover:not(:disabled){transform:translateY(-1px);border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt .hanzi-opt{
+  font-family:'Noto Serif SC',serif;
+  font-size:1.24rem;
+  font-weight:700;
+}
+.opt.correct{
+  border-color:rgba(34,197,94,.6);
+  background:rgba(34,197,94,.12);
+  color:var(--green);
+}
+.opt.correct::after{
+  content:'✓';
+  position:absolute;top:8px;right:10px;
+  color:var(--green);font-size:.75rem;
+}
+.opt.wrong{
+  border-color:rgba(244,63,94,.6);
+  background:rgba(244,63,94,.12);
+  color:var(--red);
+}
+.opt.wrong::after{
+  content:'✗';
+  position:absolute;top:8px;right:10px;
+  color:var(--red);font-size:.75rem;
+}
+
+.feedback{
+  margin-top:14px;
+  padding:14px 15px;
+  border-radius:14px;
+  display:none;
+  font-size:.82rem;
+  line-height:1.6;
+}
+.feedback.show{display:block}
+.feedback.fb-correct{
+  background:rgba(34,197,94,.08);
+  border:1px solid rgba(34,197,94,.22);
+  color:var(--green);
+}
+.feedback.fb-wrong{
+  background:rgba(244,63,94,.08);
+  border:1px solid rgba(244,63,94,.2);
+  color:var(--red);
+}
+.feedback strong{font-weight:700}
+.feedback .entry-detail{
+  margin-top:6px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.66rem;
+  color:var(--text2);
+}
+.feedback .entry-detail span{color:var(--accent)}
+
+.next-btn{
+  display:none;
+  width:100%;
+  margin-top:12px;
+  padding:13px 14px;
+  border:none;
+  border-radius:14px;
+  background:linear-gradient(135deg, var(--accent2), var(--accent));
+  color:#00111b;
+  font-family:'Syne',sans-serif;
+  font-weight:800;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:.15s ease;
+}
+.next-btn.show{display:block}
+.next-btn:hover{transform:translateY(-1px)}
+.small-note{
+  margin-top:10px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;
+  color:var(--text3);
+  text-align:center;
+  letter-spacing:.08em;
+}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:999px}
+
+@media (max-width: 760px){
+  .top-grid{grid-template-columns:1fr}
+  .controls{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .options-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span>汉语词汇</span> Quiz</div>
+  <div class="subtitle">Hanzi ↔ Indonesia · Black Mode</div>
+  <div class="word-count-badge"><div class="dot"></div><span id="badge-text">∞ LOOP · 0 WORDS BANNED</span></div>
+</header>
+
+<div class="wrap">
+  <div class="top-grid">
+    <div class="panel">
+      <div class="panel-title">Direction</div>
+      <div class="segmented">
+        <button class="seg-btn active" id="btn-hanzi-id" onclick="setDirection('hanzi-id')">Hanzi → Indonesia</button>
+        <button class="seg-btn" id="btn-id-hanzi" onclick="setDirection('id-hanzi')">Indonesia → Hanzi</button>
+      </div>
+
+      <div class="controls">
+        <div class="ban-wrap">
+          <div class="ban-label">Ban words</div>
+          <textarea id="ban-input" placeholder="Type words to ban, separated by commas or new lines.
+Examples: 餐馆, restaurant, 电脑, komputer"></textarea>
+          <div class="ban-help">Exact or partial matches are excluded from prompts and answer choices.</div>
+        </div>
+        <div class="ctrl-col">
+          <button class="ctrl-btn primary" onclick="applyBans()">Apply bans</button>
+          <button class="ctrl-btn ghost" onclick="clearBans()">Clear bans</button>
+          <button class="ctrl-btn ghost" onclick="restart()">Restart loop</button>
+        </div>
+      </div>
+
+      <div class="meta-row">
+        <div class="pill">Mode: <strong>Sequential</strong></div>
+        <div class="pill">Length: <strong>Infinite</strong></div>
+        <div class="pill" id="pool-pill">Pool: <strong>0</strong></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Live stats</div>
+      <div class="stats-row">
+        <div class="stat green">
+          <div class="stat-val" id="sc-correct">0</div>
+          <div class="stat-lbl">Correct</div>
+        </div>
+        <div class="stat red">
+          <div class="stat-val" id="sc-wrong">0</div>
+          <div class="stat-lbl">Wrong</div>
+        </div>
+        <div class="stat gold">
+          <div class="stat-val" id="sc-streak">0</div>
+          <div class="stat-lbl">Best streak</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" id="sc-seen">0</div>
+          <div class="stat-lbl">Seen</div>
+        </div>
+      </div>
+      <div class="small-note" id="status-note">Bans are off. The pool uses every visible word.</div>
+    </div>
+  </div>
+
+  <div class="progress-row">
+    <div class="prog-label" id="prog-label">Q 1 / ∞</div>
+    <div class="prog-score" id="prog-score">0 pts</div>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+
+  <div class="q-card" id="q-card">
+    <div class="q-top">
+      <div class="q-type-tag" id="q-type-tag"><span id="tag-text">Loading</span></div>
+      <div class="q-counter" id="q-counter">QUESTION 1</div>
+    </div>
+    <div class="q-prompt-wrap">
+      <div class="q-prompt" id="q-prompt">—</div>
+    </div>
+    <div class="q-hint" id="q-hint">—</div>
+    <div class="options-grid" id="opts"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="next-btn" onclick="next()">Continue →</button>
+  </div>
+</div>
+
+<script>
+const VOCAB = [
+  // ── B ──
+  {h:"峇厘岛",p:"bā lí dǎo",   id:"Pulau Bali",          en:"Bali island"},
+  {h:"饱",    p:"bǎo",          id:"Kenyang",              en:"full; eat till full"},
+  {h:"包子",  p:"bāo zi",       id:"Bakpao",               en:"steamed stuffed bun"},
+  {h:"杯",    p:"bēi",          id:"Gelas (kata satuan)",  en:"measure word for glass"},
+  {h:"北京",  p:"běi jīng",     id:"Beijing",              en:"Beijing"},
+  {h:"不太",  p:"bù tài",       id:"Tidak terlalu",        en:"not very; less"},
+  {h:"不小心",p:"bù xiǎo xīn", id:"Tidak hati-hati",      en:"carelessly; accidentally"},
+  // ── C ──
+  {h:"菜",    p:"cài",          id:"Sayuran",              en:"vegetables"},
+  {h:"餐馆",  p:"cān guǎn",     id:"Restoran",             en:"restaurant"},
+  {h:"参加",  p:"cān jiā",      id:"Ikut serta",           en:"participate"},
+  {h:"茶",    p:"chá",          id:"Teh",                  en:"tea"},
+  {h:"炒饭",  p:"chǎo fàn",     id:"Nasi goreng",          en:"fried rice"},
+  {h:"乘客",  p:"chéng kè",     id:"Penumpang",            en:"passenger"},
+  {h:"出发",  p:"chū fā",       id:"Berangkat",            en:"to set out"},
+  {h:"穿",    p:"chuān",        id:"Memakai (baju)",       en:"wear"},
+  {h:"错",    p:"cuò",          id:"Salah",                en:"wrong"},
+  // ── D ──
+  {h:"大号",  p:"dà hào",       id:"Ukuran besar",         en:"large-sized"},
+  {h:"大学",  p:"dà xué",       id:"Universitas",          en:"university"},
+  {h:"当",    p:"dāng",         id:"Menjadi / Bekerja sebagai", en:"to be; to work as"},
+  {h:"地点",  p:"dì diǎn",      id:"Lokasi",               en:"place; location"},
+  {h:"地方",  p:"dì fāng",      id:"Tempat / Daerah",      en:"place; area"},
+  {h:"点",    p:"diǎn",         id:"Pesan (makanan)",      en:"to order"},
+  {h:"电脑",  p:"diàn nǎo",     id:"Komputer",             en:"computer"},
+  {h:"钓鱼",  p:"diào yú",      id:"Memancing ikan",       en:"fishing"},
+  {h:"顶",    p:"dǐng",         id:"Kata satuan (topi)",   en:"measure word for hats"},
+  {h:"丢",    p:"diū",          id:"Kehilangan / Melempar",en:"lose; throw"},
+  // ── E ──
+  {h:"饿",    p:"è",            id:"Lapar",                en:"hungry"},
+  // ── F ──
+  {h:"发现",  p:"fā xiàn",      id:"Menemukan",            en:"to find; discover"},
+  {h:"饭馆",  p:"fàn guǎn",     id:"Warung / Restoran",    en:"restaurant"},
+  {h:"放",    p:"fàng",         id:"Meletakkan",           en:"put down"},
+  {h:"放心",  p:"fàng xīn",     id:"Tenang saja",          en:"be at ease"},
+  {h:"飞机",  p:"fēi jī",       id:"Pesawat terbang",      en:"aeroplane"},
+  {h:"付",    p:"fù",           id:"Membayar",             en:"pay"},
+  {h:"服务员",p:"fú wù yuán",   id:"Pelayan",              en:"waiter"},
+  // ── G ──
+  {h:"干",    p:"gàn",          id:"Melakukan",            en:"doing"},
+  {h:"感恩",  p:"gǎn ēn",       id:"Berterima kasih (hari)",en:"thanksgiving"},
+  {h:"感冒",  p:"gǎn mào",      id:"Flu / Demam",          en:"flu; cold"},
+  {h:"感谢",  p:"gǎn xiè",      id:"Berterima kasih",      en:"thanks"},
+  {h:"刚才",  p:"gāng cái",     id:"Baru saja",            en:"just now; a moment ago"},
+  {h:"跟",    p:"gēn",          id:"Dengan / Bersama",     en:"with"},
+  {h:"公共汽车",p:"gōng gòng qì chē",id:"Bus",            en:"bus"},
+  {h:"工作",  p:"gōng zuò",     id:"Pekerjaan / Kerja",    en:"job; occupation"},
+  {h:"故宫",  p:"gù gōng",      id:"Istana Terlarang",     en:"The Forbidden Palace"},
+  {h:"观光",  p:"guān guāng",   id:"Wisata / Jalan-jalan", en:"sightseeing"},
+  {h:"广场",  p:"guǎng chǎng",  id:"Lapangan",             en:"square"},
+  // ── H ──
+  {h:"还",    p:"hái",          id:"Masih / Juga",         en:"still; also"},
+  {h:"海鲜",  p:"hǎi xiān",     id:"Makanan laut",         en:"seafood"},
+  {h:"号码",  p:"hào mǎ",       id:"Nomor",                en:"number"},
+  {h:"和",    p:"hé",           id:"Dan / Dengan",         en:"and; with"},
+  {h:"贺卡",  p:"hè kǎ",        id:"Kartu ucapan",         en:"congratulatory card"},
+  {h:"合适",  p:"hé shì",       id:"Cocok / Sesuai",       en:"suitable; fit"},
+  {h:"壶",    p:"hú",           id:"Teko",                 en:"kettle"},
+  {h:"护照",  p:"hù zhào",      id:"Paspor",               en:"passport"},
+  {h:"换",    p:"huàn",         id:"Menukar",              en:"change"},
+  {h:"婚礼",  p:"hūn lǐ",       id:"Acara pernikahan",     en:"wedding"},
+  {h:"火车站",p:"huǒ chē zhàn", id:"Stasiun kereta",       en:"railroad station"},
+  // ── J ──
+  {h:"家庭",  p:"jiā tíng",     id:"Keluarga",             en:"family"},
+  {h:"假期",  p:"jiǎ qī",       id:"Liburan",              en:"vacation; holidays"},
+  {h:"家长会",p:"jiā zhǎng huì",id:"Rapat orang tua",      en:"parents' meeting"},
+  {h:"间",    p:"jiān",         id:"Kata satuan (ruangan)",en:"measure word for rooms"},
+  {h:"建议",  p:"jiàn yì",      id:"Saran",                en:"suggestion"},
+  {h:"将来",  p:"jiāng lái",    id:"Masa depan",           en:"(in the) future"},
+  {h:"交给",  p:"jiāo gěi",     id:"Memberikan kepada",    en:"give to"},
+  {h:"结果",  p:"jiē guǒ",      id:"Hasil",                en:"the results"},
+  {h:"结婚",  p:"jié hūn",      id:"Menikah",              en:"to get married"},
+  {h:"接着",  p:"jiē zhe",      id:"Kemudian / Lalu",      en:"then; after that"},
+  {h:"节日",  p:"jié rì",       id:"Hari raya / Liburan",  en:"festival; holiday"},
+  {h:"进来",  p:"jìn lái",      id:"Masuk",                en:"come in"},
+  {h:"镜子",  p:"jìng zi",      id:"Cermin",               en:"mirror"},
+  {h:"经理",  p:"jīng lǐ",      id:"Manajer / Direktur",   en:"manager"},
+  {h:"舅舅",  p:"jiù jiu",      id:"Paman (dari ibu)",     en:"uncle (mother's brother)"},
+  // ── K ──
+  {h:"咖啡",  p:"kā fēi",       id:"Kopi",                 en:"coffee"},
+  {h:"开",    p:"kāi",          id:"Mengadakan pesta",     en:"to give a party; to hold"},
+  {h:"咳嗽",  p:"ké sou",       id:"Batuk",                en:"to cough"},
+  {h:"空位",  p:"kōng wèi",     id:"Kursi kosong",         en:"empty seat"},
+  {h:"快乐",  p:"kuài lè",      id:"Senang / Gembira",     en:"happy; joyful"},
+  // ── L ──
+  {h:"离开",  p:"lí kāi",       id:"Meninggalkan",         en:"go away; leave"},
+  {h:"里面",  p:"lǐ miàn",      id:"Di dalam",             en:"inside"},
+  {h:"礼物",  p:"lǐ wù",        id:"Oleh-oleh / Hadiah",   en:"gift"},
+  {h:"离婚",  p:"lí hūn",       id:"Cerai",                en:"to divorce"},
+  {h:"聊天",  p:"liáo tiān",    id:"Ngobrol",              en:"to chat"},
+  {h:"零食",  p:"líng shí",     id:"Cemilan",              en:"snacks"},
+  {h:"流鼻涕",p:"liú bí tì",    id:"Pilek / Meler",        en:"runny nose"},
+  {h:"留言",  p:"liú yán",      id:"Titip pesan",          en:"to leave a message"},
+  {h:"律师",  p:"lǜ shī",       id:"Pengacara",            en:"lawyer"},
+  {h:"旅行",  p:"lǚ xíng",      id:"Jalan-jalan / Piknik", en:"tour; travel"},
+  // ── M ──
+  {h:"骂",    p:"mà",           id:"Memaki / Menghina",    en:"curse; abuse"},
+  {h:"麻烦",  p:"má fān",       id:"Repot / Susah",        en:"troubling"},
+  {h:"卖",    p:"mài",          id:"Menjual",              en:"to sell"},
+  {h:"麦当劳店",p:"mài dāng láo diàn",id:"McDonald's",    en:"McDonald's"},
+  {h:"忙",    p:"máng",         id:"Sibuk",                en:"busy"},
+  {h:"没问题",p:"méi wèn tí",   id:"Tidak masalah",        en:"no problem; that's OK"},
+  {h:"美食",  p:"měi shí",      id:"Makanan lezat",        en:"delicious food; delicacy"},
+  {h:"秘书",  p:"mì shū",       id:"Sekretaris",           en:"secretary"},
+  {h:"拿",    p:"ná",           id:"Mengambil",            en:"take"},
+  // ── P ──
+  {h:"漂亮",  p:"piào liang",   id:"Cantik / Indah",       en:"beautiful"},
+  {h:"破",    p:"pò",           id:"Rusak / Usang",        en:"worn-out; broken"},
+  // ── Q ──
+  {h:"起飞",  p:"qǐ fēi",       id:"Lepas landas",         en:"(aircraft) take off"},
+  {h:"其他",  p:"qí tā",        id:"Lainnya",              en:"other; else"},
+  {h:"钱",    p:"qián",         id:"Uang",                 en:"money"},
+  {h:"前边",  p:"qián biān",    id:"Depan / Di muka",      en:"ahead; front"},
+  {h:"青菜",  p:"qīng cài",     id:"Sayuran hijau",        en:"vegetables"},
+  {h:"庆祝",  p:"qìng zhù",     id:"Merayakan",            en:"to celebrate"},
+  {h:"请进",  p:"qǐng jìn",     id:"Silakan masuk",        en:"come in, please"},
+  // ── R ──
+  {h:"让",    p:"ràng",         id:"Membiarkan / Mengizinkan",en:"let; allow"},
+  {h:"肉",    p:"ròu",          id:"Daging",               en:"meat"},
+  {h:"如果",  p:"rú guǒ",       id:"Kalau / Jika",         en:"if"},
+  {h:"润喉片",p:"rùn hóu piàn", id:"Permen pelega tenggorokan",en:"throat lozenge"},
+  // ── S ──
+  {h:"三心二意",p:"sān xīn èr yì",id:"Ragu-ragu",         en:"half-hearted"},
+  {h:"嗓子",  p:"sǎng zi",      id:"Tenggorokan",          en:"throat"},
+  {h:"上网",  p:"shàng wǎng",   id:"Surfing internet",     en:"to surf the internet"},
+  {h:"圣诞节",p:"shèng dàn jié",id:"Hari Natal",           en:"Christmas"},
+  {h:"生日",  p:"shēng rì",     id:"Ulang tahun",          en:"birthday"},
+  {h:"时候",  p:"shí hou",      id:"Waktu / Saat",         en:"time; moment"},
+  {h:"世界",  p:"shì jiè",      id:"Dunia",                en:"world"},
+  {h:"试试",  p:"shì shì",      id:"Coba-coba",            en:"to have a try"},
+  {h:"十字路口",p:"shí zì lù kǒu",id:"Persimpangan jalan", en:"crossroads"},
+  {h:"收到",  p:"shōu dào",     id:"Menerima",             en:"receive"},
+  {h:"手套",  p:"shǒu tào",     id:"Sarung tangan",        en:"gloves"},
+  {h:"售货员",p:"shòu huò yuán",id:"Pramuniaga",           en:"salesperson"},
+  {h:"收拾",  p:"shōu shí",     id:"Membereskan",          en:"pack (up)"},
+  {h:"摔伤",  p:"shuāi shāng",  id:"Jatuh dan terluka",    en:"fall and hurt oneself"},
+  {h:"睡觉",  p:"shuì jiào",    id:"Tidur",                en:"sleep"},
+  {h:"司机",  p:"sī jī",        id:"Supir",                en:"driver"},
+  {h:"送给",  p:"sòng gěi",     id:"Memberikan",           en:"give"},
+  // ── T ──
+  {h:"T恤衫", p:"T xù shān",    id:"Kaos / T-shirt",       en:"T-shirt"},
+  {h:"太少",  p:"tài shǎo",     id:"Terlalu sedikit",      en:"too little"},
+  {h:"台北",  p:"tái běi",      id:"Taipei",               en:"Taipei"},
+  {h:"泰姬陵",p:"tài jī líng",  id:"Taj Mahal",            en:"Taj Mahal"},
+  {h:"贪嘴",  p:"tān zuǐ",      id:"Rakus",                en:"greedy"},
+  {h:"汤",    p:"tāng",         id:"Sup",                  en:"soup"},
+  {h:"特别",  p:"tè bié",       id:"Sangat / Istimewa",    en:"extremely; especially"},
+  {h:"踢球",  p:"tī qiú",       id:"Main bola",            en:"play ball"},
+  // ── W ──
+  {h:"玩",    p:"wán",          id:"Bermain",              en:"play"},
+  {h:"晚",    p:"wǎn",          id:"Terlambat / Malam",    en:"late"},
+  {h:"晚饭",  p:"wǎn fàn",      id:"Makan malam",          en:"dinner"},
+  {h:"晚会",  p:"wǎn huì",      id:"Pesta malam",          en:"evening party"},
+  {h:"万里长城",p:"wàn lǐ cháng chéng",id:"Tembok Besar China",en:"The Great Wall of China"},
+  {h:"忘",    p:"wàng",         id:"Melupakan",            en:"forget"},
+  {h:"围巾",  p:"wéi jīn",      id:"Syal",                 en:"scarf"},
+  {h:"问题",  p:"wèn tí",       id:"Masalah / Pertanyaan", en:"question; problem"},
+  {h:"午饭",  p:"wǔ fàn",       id:"Makan siang",          en:"lunch"},
+  // ── X ──
+  {h:"洗澡",  p:"xǐ zǎo",       id:"Mandi",                en:"have a bath"},
+  {h:"希望",  p:"xī wàng",      id:"Harapan / Semoga",     en:"to hope; to wish"},
+  {h:"先",    p:"xiān",         id:"Dulu / Pertama",       en:"first"},
+  {h:"香蕉",  p:"xiāng jiāo",   id:"Pisang",               en:"banana"},
+  {h:"香港",  p:"xiāng gǎng",   id:"Hong Kong",            en:"Hong Kong"},
+  {h:"小时",  p:"xiǎo shí",     id:"Jam (waktu)",          en:"hour"},
+  {h:"新年",  p:"xīn nián",     id:"Tahun baru",           en:"happy new year"},
+  {h:"需要",  p:"xū yào",       id:"Butuh / Perlu",        en:"to need"},
+];
+
+// ── STATE ──────────────────────────────────────────────────────────────
+const STATE = {
+  direction: 'hanzi-id',
+  banTerms: [],
+  pool: [],
+  index: 0,
+  score: 0,
+  wrong: 0,
+  seen: 0,
+  streak: 0,
+  bestStreak: 0,
+  answered: false,
+};
+
+function normalizeText(value) {
+  return String(value || '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+function parseBanList(text) {
+  return String(text || '')
+    .split(/[\n,;]+/)
+    .map(s => normalizeText(s))
+    .filter(Boolean);
+}
+
+function isBanned(word) {
+  if (!STATE.banTerms.length) return false;
+  const h = normalizeText(word.h);
+  const id = normalizeText(word.id);
+  return STATE.banTerms.some(term => h.includes(term) || id.includes(term));
+}
+
+function rebuildPool() {
+  STATE.pool = VOCAB.filter(w => !isBanned(w));
+  STATE.index = 0;
+  updateMeta();
+  render();
+}
+
+function updateMeta() {
+  const poolSize = STATE.pool.length;
+  document.getElementById('badge-text').textContent =
+    `∞ LOOP · ${STATE.banTerms.length} WORD${STATE.banTerms.length === 1 ? '' : 'S'} BANNED`;
+  document.getElementById('pool-pill').innerHTML = `Pool: <strong>${poolSize}</strong>`;
+  document.getElementById('status-note').textContent = poolSize
+    ? `Pool ready. ${poolSize} words available in sequential mode.`
+    : 'No words left after bans. Clear some bans to continue.';
+}
+
+function setDirection(direction) {
+  STATE.direction = direction;
+  document.getElementById('btn-hanzi-id').classList.toggle('active', direction === 'hanzi-id');
+  document.getElementById('btn-id-hanzi').classList.toggle('active', direction === 'id-hanzi');
+  render();
+}
+
+function applyBans() {
+  STATE.banTerms = parseBanList(document.getElementById('ban-input').value);
+  rebuildPool();
+}
+
+function clearBans() {
+  document.getElementById('ban-input').value = '';
+  STATE.banTerms = [];
+  rebuildPool();
+}
+
+function updateStats() {
+  document.getElementById('sc-correct').textContent = STATE.score;
+  document.getElementById('sc-wrong').textContent = STATE.wrong;
+  document.getElementById('sc-streak').textContent = STATE.bestStreak;
+  document.getElementById('sc-seen').textContent = STATE.seen;
+  document.getElementById('prog-score').textContent = `${STATE.score} pts`;
+}
+
+function currentWord() {
+  if (!STATE.pool.length) return null;
+  return STATE.pool[STATE.index % STATE.pool.length];
+}
+
+function getLabel(word) {
+  return STATE.direction === 'hanzi-id' ? word.id : word.h;
+}
+
+function getPrompt(word) {
+  return STATE.direction === 'hanzi-id' ? word.h : word.id;
+}
+
+function getTagText() {
+  return STATE.direction === 'hanzi-id' ? '汉字 → Bahasa Indonesia' : 'Indonesia → 汉字';
+}
+
+function getHintText() {
+  return STATE.direction === 'hanzi-id'
+    ? 'Pilih arti Bahasa Indonesia yang benar'
+    : 'Pilih Hanzi yang benar';
+}
+
+function buildChoices(word) {
+  const pool = STATE.pool;
+  if (!pool.length) return [];
+  const out = [word];
+  let offset = 1;
+  while (out.length < Math.min(4, pool.length)) {
+    const candidate = pool[(STATE.index + offset) % pool.length];
+    if (!out.some(x => x.h === candidate.h)) out.push(candidate);
+    offset++;
+    if (offset > pool.length + 4) break;
+  }
+  while (out.length < 4 && pool.length > out.length) {
+    const candidate = pool[out.length % pool.length];
+    if (!out.some(x => x.h === candidate.h)) out.push(candidate);
+    else break;
+  }
+  const start = STATE.index % out.length;
+  return out.slice(start).concat(out.slice(0, start));
+}
+
+function render() {
+  const word = currentWord();
+  updateStats();
+
+  document.getElementById('prog-label').textContent = `Q ${STATE.seen + 1} / ∞`;
+  document.getElementById('prog-fill').style.width = STATE.pool.length
+    ? `${(((STATE.index % STATE.pool.length) + 1) / STATE.pool.length) * 100}%`
+    : '0%';
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.innerHTML = '';
+  document.getElementById('next-btn').className = 'next-btn';
+
+  if (!word) {
+    document.getElementById('tag-text').textContent = 'No pool';
+    document.getElementById('q-counter').textContent = 'QUESTION —';
+    document.getElementById('q-prompt').className = 'q-prompt type-id';
+    document.getElementById('q-prompt').textContent = 'All words are banned';
+    document.getElementById('q-hint').textContent = 'Clear some bans to load questions again';
+    document.getElementById('opts').innerHTML = '';
+    document.getElementById('q-type-tag').style.borderColor = 'rgba(244,63,94,.35)';
+    document.getElementById('q-type-tag').style.background = 'rgba(244,63,94,.08)';
+    return;
+  }
+
+  document.getElementById('q-type-tag').style.borderColor = 'rgba(56,189,248,.18)';
+  document.getElementById('q-type-tag').style.background = 'rgba(56,189,248,.08)';
+  document.getElementById('tag-text').textContent = getTagText();
+  document.getElementById('q-counter').textContent = `QUESTION ${STATE.seen + 1}`;
+  document.getElementById('q-hint').textContent = getHintText();
+
+  const prompt = document.getElementById('q-prompt');
+  const promptText = getPrompt(word);
+  if (STATE.direction === 'hanzi-id') {
+    prompt.className = 'q-prompt type-hanzi';
+    prompt.textContent = promptText;
+  } else {
+    prompt.className = 'q-prompt type-id';
+    prompt.textContent = promptText;
+  }
+
+  const choices = buildChoices(word);
+  const grid = document.getElementById('opts');
+  grid.innerHTML = '';
+
+  const correctValue = getLabel(word);
+  choices.forEach((choice) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.dataset.val = getLabel(choice);
+    btn.innerHTML = STATE.direction === 'hanzi-id'
+      ? choice.id
+      : `<span class="hanzi-opt">${choice.h}</span>`;
+    btn.onclick = () => pick(btn, btn.dataset.val, correctValue, word);
+    grid.appendChild(btn);
+  });
+}
+
+function pick(btn, chosen, correct, word) {
+  if (STATE.answered) return;
+  STATE.answered = true;
+  STATE.seen++;
+
+  const isRight = chosen === correct;
+  document.querySelectorAll('.opt').forEach((b) => {
+    b.disabled = true;
+    if (b.dataset.val === correct) b.classList.add('correct');
+    else if (b === btn && !isRight) b.classList.add('wrong');
+  });
+
+  if (isRight) {
+    STATE.score++;
+    STATE.streak++;
+    STATE.bestStreak = Math.max(STATE.bestStreak, STATE.streak);
+  } else {
+    STATE.wrong++;
+    STATE.streak = 0;
+  }
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback ' + (isRight ? 'fb-correct show' : 'fb-wrong show');
+  fb.innerHTML = `
+    <strong>${isRight ? '✓ Correct!' : '✗ Wrong'}</strong>
+    <div class="entry-detail">
+      <span>${word.h}</span> · ${word.p} · ${word.id}
+    </div>
+  `;
+
+  document.getElementById('next-btn').className = 'next-btn show';
+  updateStats();
+}
+
+function next() {
+  if (!STATE.pool.length) return;
+  STATE.answered = false;
+  STATE.index = (STATE.index + 1) % STATE.pool.length;
+  render();
+}
+
+function restart() {
+  STATE.index = 0;
+  STATE.score = 0;
+  STATE.wrong = 0;
+  STATE.seen = 0;
+  STATE.streak = 0;
+  STATE.bestStreak = 0;
+  STATE.answered = false;
+  updateStats();
+  render();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────
+rebuildPool();
+updateStats();
+render();
+</script>
+</body>
+</html>
